@@ -1,0 +1,19 @@
+.calc-input-window {
+    width: 214px;
+}
+
+.calc-input-window input {
+    text-align: right;
+}
+
+.calc-button-row {
+    padding-bottom: 5px;
+    margin: 0 auto 0 0;
+    width: 214px;
+}
+
+.calc-button-row button {
+    height: 50px;
+    width: 50px;
+    position: relative;
+}

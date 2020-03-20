@@ -1,6 +1,8 @@
 let calcWindow = document.querySelector(".calc-input-window input");
 let calcButtons = document.querySelector(".calc-input-buttons");
 
+let calc = new Calc();
+
 function isCleared() {
     return (calcWindow.value == 0);
 }

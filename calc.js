@@ -1,6 +1,6 @@
-function Calc() {
+let Calc = function() {
     this.memory = 0; 
- }
+ };
  
  Calc.prototype.sum = (a, b) => {
      return a + b;

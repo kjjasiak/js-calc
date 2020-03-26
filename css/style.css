@@ -1,9 +1,20 @@
 .calc-input-window {
     width: 214px;
+    position: relative;
+}
+
+.calc-input-window .window-operator {
+    width: 30px;
+    display: block;
+    height: 30px;
+    position: absolute;
+    bottom: 5px;
 }
 
 .calc-input-window input {
     text-align: right;
+    height: 70px;
+    padding-top: 30px;
 }
 
 .calc-button-row {

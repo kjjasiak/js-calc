@@ -1,9 +1,10 @@
 function Calc() {
     this.memory = 0; 
     this.window = document.querySelector(".calc-input-window input");
+    this.windowOperator = document.querySelector(".calc-input-window .window-operator");
     this.buttons = document.querySelector(".calc-input-buttons");
     this.operators = /[-|+|x|/]+/g;
-    this.numbers = /[0-9]+/g;
+    this.numbers = /[0-9|,]+/g;
     this.actions = /[C|=]+/g;
     this.operand = null;
     this.operator = null;
@@ -31,6 +32,12 @@ function Calc() {
 
 Calc.prototype.clear = function() {
     this.window.value = 0;
+    this.resetOperand();
+    this.resetOperator();
+}
+
+Calc.prototype.setWindow = function(val) {
+    this.window.value = val;
 }
 
 Calc.prototype.saveOperand = function(val) {
@@ -39,6 +46,7 @@ Calc.prototype.saveOperand = function(val) {
 
 Calc.prototype.saveOperator = function(val) {
     this.operator = val;
+    this.windowOperator.innerHTML = val;
 }
 
 Calc.prototype.resetOperand = function() {
@@ -47,12 +55,13 @@ Calc.prototype.resetOperand = function() {
 
 Calc.prototype.resetOperator = function() {
     this.operator = null;
+    this.windowOperator.innerHTML = "";
 }
 
 Calc.prototype.eval = function() {
-    let a = parseFloat(this.convertSep(this.operand));
-    let b = parseFloat(this.convertSep(this.window.value));
-    let result = 0;
+    let a = parseFloat(this.convertSep(this.operand)),
+        b = parseFloat(this.convertSep(this.window.value)),
+        result = 0;
 
     switch(this.operator) {
         case "+":
@@ -72,7 +81,13 @@ Calc.prototype.eval = function() {
     this.resetOperand();
     this.resetOperator();
 
-    this.window.value = result;
+    if (result)
+        this.setWindow(result);
+    else {
+        this.clear();
+        this.resetOperand();
+        this.resetOperator();
+    }
 }
 
 Calc.prototype.convertSep = function(val) {
@@ -80,9 +95,7 @@ Calc.prototype.convertSep = function(val) {
 }
 
 Calc.prototype.separator = function() {
-    if (this.window.value.indexOf(",") >= 0)
-        return;
-    else
+    if (this.window.value.indexOf(",") < 0)
         this.window.value += ",";
 }
 
@@ -111,8 +124,8 @@ Calc.prototype.onButtonClick = function(event) {
     }
     else if (btnText.match(this.numbers)) {
         if (this.isCleared())
-            this.window.value = "";
+            this.setWindow("");
 
-        this.window.value = `${this.window.value}${target.innerText}`;
+        this.setWindow(`${this.window.value}${target.innerText}`);
     }
 }

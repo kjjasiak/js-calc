@@ -11,10 +11,10 @@ function Calc(calcSelector) {
     this.operand = null;
     this.operator = null;
     this.isCleared = true;
-
-    console.log(this.calcSelector);
 };
- 
+
+// arithmetic functions
+
  Calc.prototype.sum = function(a, b) {
      return a + b;
  }
@@ -31,52 +31,13 @@ function Calc(calcSelector) {
      return (b > 0) ? a / b : alert("Nie mozna dzielic przez zero!");
  }
 
-Calc.prototype.clear = function() {
-    this.window.value = 0;
-    this.resetOps();
-}
-
-Calc.prototype.setWindow = function(val) {
-    this.window.value = val;
-}
-
-Calc.prototype.saveOperand = function(val) {
-    this.operand = val;
-    this.windowOperand.innerHTML = val;
-}
-
-Calc.prototype.saveOperator = function(val) {
-    this.operator = val;
-    this.windowOperator.innerHTML = val;
-}
-
-Calc.prototype.resetOperand = function() {
-    this.operand = null;
-    this.windowOperand.innerHTML = "";
-}
-
-Calc.prototype.resetOperator = function() {
-    this.operator = null;
-    this.windowOperator.innerHTML = "";
-}
-
-Calc.prototype.resetOps = function() {
-    this.resetOperand();
-    this.resetOperator();
-}
-
-Calc.prototype.showMemState= function() {
-    console.log("operand: " + this.operand);
-    console.log("operator: " + this.operator);
-}
-
-Calc.prototype.eval = function() {
+ Calc.prototype.eval = function() {
     let a = parseFloat(this.operand),
         b = parseFloat(this.convertSep(this.window.value)),
         result = 0;
 
-    console.log("operand 1: " + this.operand);
-    console.log("operand 2: " + this.window.value);
+    console.log("operand 1: " + a);
+    console.log("operand 2: " + b);
 
     switch(this.operator) {
         case "+":
@@ -104,6 +65,20 @@ Calc.prototype.eval = function() {
     }
 
     this.isCleared = true;
+ }
+
+// other common calculator actions
+
+Calc.prototype.clear = function() {
+    this.window.value = 0;
+    this.resetOps();
+    this.isCleared = true;
+}
+
+// helper functions
+
+Calc.prototype.setWindow = function(val) {
+    this.window.value = val;
 }
 
 Calc.prototype.convertSep = function(val) {
@@ -121,14 +96,48 @@ Calc.prototype.getSepPosition = function() {
     return (this.window.value.indexOf(",") > 0) ? this.window.value.length - this.window.value.indexOf(",") : -1;
 }
 
-Calc.prototype.onOperatorClick = function(val) {
-    if (this.operand === null) {
-        console.log("saving: " + this.window.value);
-        this.saveOperand(this.convertSep(this.window.value));
-        this.window.value = 0;
-        this.saveOperator(val);
-        this.isCleared = true;
-    }
+// memory management
+
+Calc.prototype.saveOperand = function(val) {
+    this.operand = val;
+    this.windowOperand.innerHTML = this.convertSep(val);
+}
+
+Calc.prototype.saveOperator = function(val, text) {
+    this.operator = val;
+    this.windowOperator.innerHTML = text;
+}
+
+Calc.prototype.resetOperand = function() {
+    this.operand = null;
+    this.windowOperand.innerHTML = "";
+}
+
+Calc.prototype.resetOperator = function() {
+    this.operator = null;
+    this.windowOperator.innerHTML = "";
+}
+
+Calc.prototype.resetOps = function() {
+    this.resetOperand();
+    this.resetOperator();
+}
+
+Calc.prototype.showMemState= function() {
+    console.log("operand: " + this.operand);
+    console.log("operator: " + this.operator);
+}
+
+// click events
+
+Calc.prototype.onOperatorClick = function(val, target) {
+    if (this.operand !== null)
+        return;
+
+    this.saveOperand(this.convertSep(this.window.value));
+    this.setWindow(0);
+    this.saveOperator(target.value, val);
+    this.isCleared = true;
 }
 
 Calc.prototype.onActionClick = function(val, target) {
@@ -136,7 +145,9 @@ Calc.prototype.onActionClick = function(val, target) {
     this[fnToRun]();
 }
 
-Calc.prototype.onNumberClick = function(val, target) {
+Calc.prototype.onNumberClick = function(target) {
+    console.log(target.innerText);
+   
     if (this.isCleared)
         this.setWindow("");
     
@@ -151,10 +162,20 @@ Calc.prototype.onButtonClick = function(event) {
     if (target.className.indexOf("btn") < 0)
         return;
     
-    if (btnText.match(this.operators))
-        this.onOperatorClick(btnText);
+    if (target.value.match(this.operators))
+        this.onOperatorClick(btnText, target);
     else if (btnText.match(this.actions)) 
         this.onActionClick(btnText, target);
     else if (btnText.match(this.numbers))
-        this.onNumberClick(btnText, target);
+        this.onNumberClick(target);
+}
+
+Calc.prototype.onKeyPress = function(event) {
+    let keyCode = event.which;
+
+    if (keyCode >= 48 && keyCode <= 57)
+        this.onNumberClick({ innerText: keyCode - 48 });        
+
+    if (keyCode == 46)
+        this.clear();
 }

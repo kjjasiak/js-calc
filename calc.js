@@ -1,13 +1,18 @@
-function Calc() {
-    this.memory = 0; 
-    this.window = document.querySelector(".calc-input-window input");
-    this.windowOperator = document.querySelector(".calc-input-window .window-operator");
-    this.buttons = document.querySelector(".calc-input-buttons");
+function Calc(calcSelector) {
+    this.memory = 0;
+    this.calcSelector = calcSelector;
+    this.window = document.querySelector(calcSelector + " .calc-input-window input");
+    this.windowOperand = document.querySelector(calcSelector + " .calc-input-window .window-operand");
+    this.windowOperator = document.querySelector(calcSelector + " .calc-input-window .window-operator");
+    this.buttons = document.querySelector(calcSelector + " .calc-input-buttons");
     this.operators = /[-|+|x|/]+/g;
     this.numbers = /[0-9|,]+/g;
     this.actions = /[C|=]+/g;
     this.operand = null;
     this.operator = null;
+    this.isCleared = true;
+
+    console.log(this.calcSelector);
 };
  
  Calc.prototype.sum = function(a, b) {
@@ -26,14 +31,9 @@ function Calc() {
      return (b > 0) ? a / b : alert("Nie mozna dzielic przez zero!");
  }
 
- Calc.prototype.isCleared = function() {
-    return (this.window.value == 0);
-}
-
 Calc.prototype.clear = function() {
     this.window.value = 0;
-    this.resetOperand();
-    this.resetOperator();
+    this.resetOps();
 }
 
 Calc.prototype.setWindow = function(val) {
@@ -42,6 +42,7 @@ Calc.prototype.setWindow = function(val) {
 
 Calc.prototype.saveOperand = function(val) {
     this.operand = val;
+    this.windowOperand.innerHTML = val;
 }
 
 Calc.prototype.saveOperator = function(val) {
@@ -51,6 +52,7 @@ Calc.prototype.saveOperator = function(val) {
 
 Calc.prototype.resetOperand = function() {
     this.operand = null;
+    this.windowOperand.innerHTML = "";
 }
 
 Calc.prototype.resetOperator = function() {
@@ -58,10 +60,23 @@ Calc.prototype.resetOperator = function() {
     this.windowOperator.innerHTML = "";
 }
 
+Calc.prototype.resetOps = function() {
+    this.resetOperand();
+    this.resetOperator();
+}
+
+Calc.prototype.showMemState= function() {
+    console.log("operand: " + this.operand);
+    console.log("operator: " + this.operator);
+}
+
 Calc.prototype.eval = function() {
-    let a = parseFloat(this.convertSep(this.operand)),
+    let a = parseFloat(this.operand),
         b = parseFloat(this.convertSep(this.window.value)),
         result = 0;
+
+    console.log("operand 1: " + this.operand);
+    console.log("operand 2: " + this.window.value);
 
     switch(this.operator) {
         case "+":
@@ -78,20 +93,23 @@ Calc.prototype.eval = function() {
             break;
     }
     
-    this.resetOperand();
-    this.resetOperator();
+    this.resetOps();
 
-    if (result)
-        this.setWindow(result);
+    if (result) {
+        this.setWindow(this.convertSep(result));
+    }
     else {
         this.clear();
-        this.resetOperand();
-        this.resetOperator();
+        this.resetOps();
     }
+
+    this.isCleared = true;
 }
 
 Calc.prototype.convertSep = function(val) {
-    return val.replace(',', '.');
+    val = val.toString();
+
+    return (val.indexOf(",") < 0) ? val.replace('.', ',') : val.replace(',', '.');
 }
 
 Calc.prototype.separator = function() {
@@ -103,6 +121,29 @@ Calc.prototype.getSepPosition = function() {
     return (this.window.value.indexOf(",") > 0) ? this.window.value.length - this.window.value.indexOf(",") : -1;
 }
 
+Calc.prototype.onOperatorClick = function(val) {
+    if (this.operand === null) {
+        console.log("saving: " + this.window.value);
+        this.saveOperand(this.convertSep(this.window.value));
+        this.window.value = 0;
+        this.saveOperator(val);
+        this.isCleared = true;
+    }
+}
+
+Calc.prototype.onActionClick = function(val, target) {
+    let fnToRun = target.name;
+    this[fnToRun]();
+}
+
+Calc.prototype.onNumberClick = function(val, target) {
+    if (this.isCleared)
+        this.setWindow("");
+    
+    this.setWindow(`${this.window.value}${target.innerText}`);
+    this.isCleared = false;
+}
+
 Calc.prototype.onButtonClick = function(event) {
     let { target } = event;
     let btnText = target.innerHTML;
@@ -110,22 +151,10 @@ Calc.prototype.onButtonClick = function(event) {
     if (target.className.indexOf("btn") < 0)
         return;
     
-    if (btnText.match(this.operators)) {
-        if (this.operand === null) {
-            this.saveOperand(this.window.value);
-            this.clear();
-            this.saveOperator(btnText);
-        }
-    }
-    else if (btnText.match(this.actions)) {
-        console.log(target.name);
-        let fnToRun = target.name;
-        this[fnToRun]();
-    }
-    else if (btnText.match(this.numbers)) {
-        if (this.isCleared())
-            this.setWindow("");
-
-        this.setWindow(`${this.window.value}${target.innerText}`);
-    }
+    if (btnText.match(this.operators))
+        this.onOperatorClick(btnText);
+    else if (btnText.match(this.actions)) 
+        this.onActionClick(btnText, target);
+    else if (btnText.match(this.numbers))
+        this.onNumberClick(btnText, target);
 }

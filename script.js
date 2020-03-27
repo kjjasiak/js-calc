@@ -1,4 +1,4 @@
-var calc = new Calc();
+var calc = new Calc(".calc-main");
 let handle = document.querySelector(".calc-input-buttons");
 
 handle.addEventListener("click", (event) =>  {

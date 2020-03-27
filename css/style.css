@@ -1,10 +1,31 @@
-.calc-input-window {
+@import url('https://fonts.googleapis.com/css?family=Baloo+2&display=swap');
+
+html {
+    font-family: 'Baloo 2', cursive;
+}
+
+.calc-main {
     width: 214px;
+}
+
+.calc-input-window {
     position: relative;
+}
+
+.calc-input-window .window-operand {
+    display: block;
+    height: 30px;
+    width: 90%;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    text-align: right;
+    font-size: 12px;
 }
 
 .calc-input-window .window-operator {
     width: 30px;
+    padding-left: 10px;
     display: block;
     height: 30px;
     position: absolute;
@@ -20,7 +41,6 @@
 .calc-button-row {
     padding-bottom: 5px;
     margin: 0 auto 0 0;
-    width: 214px;
 }
 
 .calc-button-row button {
